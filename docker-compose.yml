@@ -1,0 +1,52 @@
+services:
+  app:
+    build: .
+    container_name: clientes-app
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: clientes_db
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - clientes_net
+
+  mysql:
+    image: mysql:8.0
+    container_name: clientes-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: clientes_db
+    volumes:
+      - dados_mysql:/var/lib/mysql
+    networks:
+      - clientes_net
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: clientes-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    networks:
+      - clientes_net
+
+volumes:
+  dados_mysql:
+
+networks:
+  clientes_net:
