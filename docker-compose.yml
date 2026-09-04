@@ -1,52 +1,53 @@
-services:
-  app:
-    build: .
-    container_name: clientes-app
-    ports:
-      - "8080:80"
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: clientes_db
-    volumes:
-      - ./src:/var/www/html
-    depends_on:
-      - mysql
-    networks:
-      - clientes_net
+services:                                 # Bloco onde ficam todos os containers da aplicação
 
-  mysql:
-    image: mysql:8.0
-    container_name: clientes-db
-    restart: unless-stopped
+  app:                                    # Container do site em PHP (é ele que o navegador acessa)
+    build: .                              # Em vez de baixar uma imagem pronta, monta a imagem a partir do Dockerfile desta pasta
+    container_name: clientes-app          # Nome fixo do container, senão o Docker inventa um nome aleatório a cada subida
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: clientes_db
+      - "8080:80"                         # Porta 8080 da minha máquina aponta para a porta 80 do Apache dentro do container
+    environment:                          # Variáveis lidas pelo PHP em Database.php para montar a conexão PDO
+      DB_HOST: mysql                      # Host do banco: é o nome do serviço abaixo, resolvido pela rede interna do Docker
+      DB_USER: root                       # Usuário do MySQL
+      DB_PASSWORD: root                   # Senha do usuário (só para ambiente de estudo)
+      DB_NAME: clientes_db                # Banco que a aplicação vai usar
     volumes:
-      - dados_mysql:/var/lib/mysql
-    networks:
-      - clientes_net
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: clientes-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8081:80"
+      - ./src:/var/www/html                # Espelha a pasta src do projeto dentro do container: editei o arquivo aqui, já reflete no site sem rebuildar
     depends_on:
-      - mysql
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: root
+      - mysql                             # Garante que o container do MySQL seja iniciado antes deste
     networks:
-      - clientes_net
+      - clientes_net                      # Coloca este container na rede criada lá no final do arquivo
+
+  mysql:                                  # Container do banco de dados
+    image: mysql:8.0                      # Imagem oficial do MySQL na versão 8.0 (versão fixa para não quebrar depois)
+    container_name: clientes-db           # Nome fixo do container do banco
+    restart: unless-stopped               # Sobe sozinho de novo se cair ou se a máquina reiniciar, a menos que eu pare manualmente
+    ports:
+      - "3306:3306"                       # Expõe a porta do MySQL na máquina para dar para conectar por Workbench/DBeaver
+    environment:
+      MYSQL_ROOT_PASSWORD: root           # Define a senha do root na primeira vez que o banco é criado
+      MYSQL_DATABASE: clientes_db         # Já cria o banco clientes_db automaticamente ao subir o container
+    volumes:
+      - dados_mysql:/var/lib/mysql        # Guarda os dados do MySQL em um volume, assim nada se perde quando o container é removido
+    networks:
+      - clientes_net                      # Mesma rede da aplicação, para o PHP conseguir enxergar o banco
+
+  phpmyadmin:                             # Container com a interface web para administrar o banco
+    image: phpmyadmin:latest              # Imagem oficial do phpMyAdmin
+    container_name: clientes-phpmyadmin   # Nome fixo do container
+    restart: unless-stopped               # Mesma política de reinício dos outros serviços
+    ports:
+      - "8081:80"                         # Acesso pelo navegador em localhost:8081 (8080 já está com a aplicação)
+    depends_on:
+      - mysql                             # Só faz sentido subir depois que o banco existir
+    environment:
+      PMA_HOST: mysql                     # Qual servidor MySQL o phpMyAdmin deve administrar
+      PMA_USER: root                      # Usuário usado no login automático
+      PMA_PASSWORD: root                  # Senha desse usuário
+    networks:
+      - clientes_net                      # Também precisa estar na mesma rede para alcançar o banco
 
 volumes:
-  dados_mysql:
+  dados_mysql:                            # Declara o volume nomeado usado pelo MySQL (o Docker cria e gerencia sozinho)
 
 networks:
-  clientes_net:
+  clientes_net:                           # Rede própria do projeto: os containers se acham pelo nome do serviço, sem precisar de IP
