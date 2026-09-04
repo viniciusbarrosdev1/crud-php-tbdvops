@@ -1,4 +1,13 @@
+# Sistema operacional
 .DS_Store
 *.log
-.claude
-.node_modules
+
+# Dependências e ferramentas do Node (não fazem parte da aplicação PHP)
+node_modules/
+package.json
+package-lock.json
+
+# Configuração local do editor / assistente
+.claude/
+.mcp.json
+skills-lock.json
