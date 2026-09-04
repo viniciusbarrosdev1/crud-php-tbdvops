@@ -33,7 +33,7 @@ class Database {
 
     private static function criarTabela(): void {
         self::$connection->exec("CREATE TABLE IF NOT EXISTS clientes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id VARCHAR(32) PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
             cpf VARCHAR(14) NOT NULL,
             descricao TEXT,

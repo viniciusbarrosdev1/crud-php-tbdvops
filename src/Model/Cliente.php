@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../Config/Database.php";
 
-class ClienteModel
+class Cliente
 {
     private PDO $conn;
 
