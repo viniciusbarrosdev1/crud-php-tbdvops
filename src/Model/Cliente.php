@@ -46,7 +46,7 @@ class Cliente
         }
     }
 
-    public function getById(string $id): array
+    public function getById(string $id): ?array
     {
         try {
             $query = "SELECT * FROM clientes WHERE id = :id;";

@@ -19,6 +19,7 @@ class Database {
             try {
                 return new PDO($dns, getenv('DB_USER'), getenv('DB_PASSWORD'), [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 ]);
             } catch (PDOException $e) {
                 if ($tentativa === 10) {
