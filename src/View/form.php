@@ -21,6 +21,7 @@ $acao = $editando
 $titulo   = $editando ? 'Editar cliente' : 'Novo cliente';
 $local    = $titulo;
 $estreita = true;
+require __DIR__ . '/partials/topo.php';
 ?>
 
 <div class="cabecalho">
